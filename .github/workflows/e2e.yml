@@ -54,13 +54,12 @@ jobs:
           command: yarn cy:run
           parallel: true
           record: true
-          group: e2e-tests-${{ matrix.containers }}
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload screenshots
-        if: always()
+        if: failure()
         uses: actions/upload-artifact@v4.6.0
         with:
           name: cypress-screenshots

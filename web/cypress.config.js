@@ -1,10 +1,11 @@
-module.exports = {
+export default {
   e2e: {
+    projectId: 'bv1wq1',
     baseUrl: 'http://localhost:3000',
     viewportWidth: 1920,
     viewportHeight: 1080,
     experimentalRunAllSpecs: true,
-    setupNodeEvents(on, config) {
+    setupNodeEvents(_on, config) {
       // implement node event listeners here
     },
   },

@@ -19,6 +19,10 @@ permissions:
 jobs:
   E2E-Tests:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2] 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -41,21 +45,19 @@ jobs:
         working-directory: web
         run: yarn install
 
-      - name: Check if dist exists
-        working-directory: web
-        run: |
-          if [ ! -d "dist" ]; then
-            mkdir -p dist
-            echo "<h1>Test App</h1>" > dist/index.html
-          fi
-
       - name: Run Cypress Tests
-        uses: cypress-io/github-action@v6
+        uses: cypress-io/github-action@v6.10.0
         with:
           working-directory: web
           start: yarn dev
           wait-on: 'http://localhost:3000'
           command: yarn cy:run
+          parallel: true
+          record: true
+          group: e2e-tests-${{ matrix.containers }}
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload screenshots
         if: always()

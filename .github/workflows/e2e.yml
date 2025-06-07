@@ -19,6 +19,10 @@ permissions:
 jobs:
   E2E-Tests:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2] 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -60,8 +64,16 @@ jobs:
         run: npx wait-on http://localhost:3000
 
       - name: Run Cypress Tests
-        working-directory: web
-        run: yarn cy:run
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: web
+          start: yarn cy:run
+          wait-on: 'http://localhost:3000'
+          record: true
+          parallel: true
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload screenshots
         if: always()

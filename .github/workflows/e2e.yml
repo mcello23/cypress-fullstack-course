@@ -29,10 +29,10 @@ jobs:
         uses: actions/setup-node@v4.4.0
         with:
           node-version: "22.16.0"
-          cache: "yarn"
+          cache: "npm"
           cache-dependency-path: "web/yarn.lock"
 
-      - name: Enable Corepack
+      - name: Enable Corepack and prepare Yarn
         run: |
           corepack enable
           corepack prepare yarn@4.9.2 --activate
@@ -72,10 +72,10 @@ jobs:
         uses: actions/setup-node@v4.4.0
         with:
           node-version: "22.16.0"
-          cache: "yarn"
+          cache: "npm"
           cache-dependency-path: "web/yarn.lock"
 
-      - name: Enable Corepack
+      - name: Enable Corepack and prepare Yarn
         run: |
           corepack enable
           corepack prepare yarn@4.9.2 --activate
@@ -85,7 +85,7 @@ jobs:
         run: yarn install --immutable
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4.6.2
+        uses: actions/download-artifact@v4.3.0
         with:
           name: build-files
           path: web/dist
@@ -122,4 +122,4 @@ jobs:
           name: cypress-videos-${{ matrix.containers }}
           path: web/cypress/videos/
           retention-days: 7
-          if-no-files-found: ignore
+          if-no-files-found:

@@ -1,3 +1,4 @@
+import { cy } from '@faker-js/faker';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 
 const nome = faker.person.fullName();
@@ -59,9 +60,13 @@ describe('Consultancy form page validation', () => {
 
     cy.contains('label', 'termos de uso').find('input').check();
 
-    cy.contains('button', 'Enviar formulário').should('be.visible').click();
+    cy.contains('button[type="submit"]', 'Enviar formulário')
+      .should('be.visible')
+      .click();
 
-    cy.get('.modal-content', {timeout: 10000}).contains(successMessage).should('be.visible');
+    cy.get('.modal-content', { timeout: 10000 })
+      .contains(successMessage)
+      .should('be.visible');
   });
   it('Should validate the required field messages', () => {
     cy.contains('button', 'Enviar formulário').should('be.visible').click();
@@ -78,7 +83,7 @@ describe('Consultancy form page validation', () => {
       .should('be.visible')
       .should('have.text', 'Campo obrigatório')
       .and('have.class', 'text-red-400')
-      .and('have.css', 'color', 'rgb(248, 113, 113)');   
+      .and('have.css', 'color', 'rgb(248, 113, 113)');
     cy.contains('label', 'termos de uso')
       .parent()
       .find('p')

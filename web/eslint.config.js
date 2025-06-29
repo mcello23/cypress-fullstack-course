@@ -29,6 +29,20 @@ export default [
     },
   },
   {
+    files: ['cypress.config.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'commonjs',
+      globals: {
+        module: 'readonly',
+        require: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+      },
+    },
+  },
+  {
     files: ['cypress/**/*.js'],
     rules: {
       'no-console': 'off',

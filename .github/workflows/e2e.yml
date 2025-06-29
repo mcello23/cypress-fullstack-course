@@ -10,27 +10,27 @@ on:
       - main
 
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
+  actions: read
 
 jobs:
-  E2E-Tests:
-    runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        containers: [1, 2]
+  install:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4.2.0
+        uses: actions/setup-node@v4.4.0
         with:
           node-version: "22.16.0"
+          cache: "yarn"
+          cache-dependency-path: "web/yarn.lock"
 
       - name: Enable Corepack
         run: corepack enable
@@ -43,33 +43,91 @@ jobs:
 
       - name: Install dependencies
         working-directory: web
-        run: yarn install
+        run: yarn install --immutable
+
+      - name: Build application
+        working-directory: web
+        run: |
+          mkdir -p dist
+          echo "Build step - your app should be built here"
+          # Add your actual build command here if you have one
+
+      - name: Save build artifacts
+        uses: actions/upload-artifact@v4.6.2
+        with:
+          name: build-files
+          path: web/dist
+          retention-days: 1
+          if-no-files-found: error
+
+  E2E-Tests:
+    runs-on: ubuntu-24.04
+    needs: install
+    timeout-minutes: 15
+    strategy:
+      fail-fast: false
+      matrix:
+        containers: [1, 2, 3, 4]
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4.4.0
+        with:
+          node-version: "22.16.0"
+          cache: "yarn"
+          cache-dependency-path: "web/yarn.lock"
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Configure Yarn
+        working-directory: web
+        run: |
+          corepack prepare yarn@4.9.2 --activate
+          mkdir -p .yarn/cache
+
+      - name: Install dependencies
+        working-directory: web
+        run: yarn install --immutable
+
+      - name: Download build artifacts
+        uses: actions/download-artifact@v4.3.0
+        with:
+          name: build-files
+          path: web/dist
 
       - name: Run Cypress Tests
-        uses: cypress-io/github-action@v6.10.0
+        uses: cypress-io/github-action@v6.10.1
         with:
           working-directory: web
           start: yarn dev
           wait-on: "http://localhost:3000"
+          wait-on-timeout: 120
           command: yarn cy:run
           parallel: true
           record: true
+          group: "E2E-Tests-${{ matrix.containers }}"
+          tag: ${{ github.event_name }}
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload screenshots
         if: failure()
-        uses: actions/upload-artifact@v4.6.0
+        uses: actions/upload-artifact@v4.6.2
         with:
-          name: cypress-screenshots
+          name: cypress-screenshots-${{ matrix.containers }}
           path: web/cypress/screenshots/
+          retention-days: 7
           if-no-files-found: ignore
 
       - name: Upload videos
         if: always()
-        uses: actions/upload-artifact@v4.6.0
+        uses: actions/upload-artifact@v4.6.2
         with:
-          name: cypress-videos
+          name: cypress-videos-${{ matrix.containers }}
           path: web/cypress/videos/
+          retention-days: 7
           if-no-files-found: ignore

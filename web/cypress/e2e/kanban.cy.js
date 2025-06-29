@@ -16,6 +16,7 @@ describe('Kanban board functionality', () => {
       })
       .find('h3')
       .should('have.text', 'Done (4)');
+
     cy.get('.column-done')
       .and('include.text', 'Documentar API')
       .and('include.text', 'Criar documentação da API com Swagger');

@@ -48,13 +48,16 @@ jobs:
           cp -r public/* dist/ 2>/dev/null || echo "No public folder found"
           echo "Static files prepared for serving"
 
+      - name: Clean up Zone.Identifier files
+        run: |
+          find web/dist -name "*:Zone.Identifier" -type f -delete
+          echo "Removed Zone.Identifier files"
+
       - name: Save build artifacts
         uses: actions/upload-artifact@v4.6.2
         with:
           name: build-files
-          path: |
-            web/dist
-            !web/dist/*:*
+          path: web/dist
           retention-days: 1
           if-no-files-found: error
 

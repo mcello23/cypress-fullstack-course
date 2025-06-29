@@ -127,4 +127,4 @@ jobs:
           name: cypress-videos-${{ matrix.containers }}
           path: web/cypress/videos/
           retention-days: 7
-          if-no-files-found:
+          if-no-files-found: ignore

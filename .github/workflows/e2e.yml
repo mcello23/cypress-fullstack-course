@@ -102,10 +102,9 @@ jobs:
           start: yarn dev
           wait-on: "http://localhost:3000"
           wait-on-timeout: 120
-          command: yarn cy:run
           parallel: true
           record: true
-          group: "E2E-Tests-${{ matrix.containers }}"
+          group: "E2E-Tests"
           tag: ${{ github.event_name }}
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}

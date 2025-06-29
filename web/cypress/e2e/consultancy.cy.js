@@ -1,4 +1,3 @@
-import { cy } from '@faker-js/faker';
 import { faker } from '@faker-js/faker/locale/pt_BR';
 
 const nome = faker.person.fullName();

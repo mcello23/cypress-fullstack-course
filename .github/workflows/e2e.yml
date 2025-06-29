@@ -22,7 +22,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        containers: [1, 2] 
+        containers: [1, 2]
     steps:
       - name: Checkout code
         uses: actions/checkout@v4.2.2
@@ -30,7 +30,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4.2.0
         with:
-          node-version: '22.16.0'
+          node-version: "22.16.0"
 
       - name: Enable Corepack
         run: corepack enable
@@ -50,7 +50,7 @@ jobs:
         with:
           working-directory: web
           start: yarn dev
-          wait-on: 'http://localhost:3000'
+          wait-on: "http://localhost:3000"
           command: yarn cy:run
           parallel: true
           record: true

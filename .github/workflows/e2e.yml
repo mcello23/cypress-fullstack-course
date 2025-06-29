@@ -33,13 +33,9 @@ jobs:
           cache-dependency-path: "web/yarn.lock"
 
       - name: Enable Corepack
-        run: corepack enable
-
-      - name: Configure Yarn
-        working-directory: web
         run: |
+          corepack enable
           corepack prepare yarn@4.9.2 --activate
-          mkdir -p .yarn/cache
 
       - name: Install dependencies
         working-directory: web
@@ -49,8 +45,8 @@ jobs:
         working-directory: web
         run: |
           mkdir -p dist
-          echo "Build step - your app should be built here"
-          # Add your actual build command here if you have one
+          cp -r public/* dist/ 2>/dev/null || echo "No public folder found"
+          echo "Static files prepared for serving"
 
       - name: Save build artifacts
         uses: actions/upload-artifact@v4.6.2
@@ -80,20 +76,16 @@ jobs:
           cache-dependency-path: "web/yarn.lock"
 
       - name: Enable Corepack
-        run: corepack enable
-
-      - name: Configure Yarn
-        working-directory: web
         run: |
+          corepack enable
           corepack prepare yarn@4.9.2 --activate
-          mkdir -p .yarn/cache
 
       - name: Install dependencies
         working-directory: web
         run: yarn install --immutable
 
       - name: Download build artifacts
-        uses: actions/download-artifact@v4.3.0
+        uses: actions/download-artifact@v4.6.2
         with:
           name: build-files
           path: web/dist

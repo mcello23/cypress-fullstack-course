@@ -27,7 +27,7 @@ const successMessage =
   'Sua solicitação de consultoria foi enviada com sucesso! Em breve, nossa equipe entrará em contato através do email fornecido.';
 
 // ---------- Helpers UI ----------
-function preencherCamposBasicos() {
+function preencherCamposBasicos(tipoPessoa = 'PF') {
   const nome = faker.person.fullName();
   const email = faker.internet.email();
   const phone = faker.phone.number({ style: 'national' });
@@ -36,7 +36,16 @@ function preencherCamposBasicos() {
   cy.get('#name').clear().type(nome).should('have.value', nome);
   cy.get('#email').clear().type(email).should('have.value', email);
   cy.get('#phone').clear().type(phone).should('have.value', phone);
-  cy.get('#consultancyType').select('In Company');
+
+  if (tipoPessoa === 'PJ') {
+    // Apenas PJ altera o select
+    cy.get('#consultancyType')
+      .select('inCompany')
+      .should('have.value', 'inCompany');
+  } else {
+    // PF: valida default (não altera)
+    cy.get('#consultancyType').should('have.value', 'individual');
+  }
 
   socialOptions.forEach((option) => {
     cy.contains('label', option).find('input').check().should('be.checked');
@@ -67,6 +76,8 @@ function selecionarPessoaFisica(cpf) {
     .find('input')
     .check()
     .should('be.checked');
+  // Garante que continua individual
+  cy.get('#consultancyType').should('have.value', 'individual');
   cy.contains('label', 'CPF')
     .parent()
     .find('input')
@@ -82,6 +93,10 @@ function selecionarPessoaJuridica(cnpj) {
     .find('input')
     .check()
     .should('be.checked');
+  // Ajusta select para PJ
+  cy.get('#consultancyType')
+    .select('inCompany')
+    .should('have.value', 'inCompany');
   cy.contains('label', 'CNPJ')
     .parent()
     .find('input')
@@ -104,8 +119,8 @@ describe('Consultancy form page validation', () => {
   });
 
   context('Pessoa Física', () => {
-    it('Deve enviar solicitação válida (CPF)', () => {
-      preencherCamposBasicos();
+    it('Deve enviar solicitação válida (CPF) sem alterar o tipo (default individual)', () => {
+      preencherCamposBasicos('PF');
       const cpf = gerarCPF();
       selecionarPessoaFisica(cpf);
       submeterFormulario();
@@ -113,8 +128,8 @@ describe('Consultancy form page validation', () => {
   });
 
   context('Pessoa Jurídica', () => {
-    it('Deve enviar solicitação válida (CNPJ)', () => {
-      preencherCamposBasicos();
+    it('Deve enviar solicitação válida (CNPJ) alterando para inCompany', () => {
+      preencherCamposBasicos('PJ');
       const cnpj = gerarCNPJ();
       selecionarPessoaJuridica(cnpj);
       submeterFormulario();
@@ -123,7 +138,7 @@ describe('Consultancy form page validation', () => {
 
   context('Comportamentos adicionais', () => {
     it('Deve limpar campo de documento ao trocar de Pessoa Física para Jurídica', () => {
-      preencherCamposBasicos();
+      preencherCamposBasicos('PF');
       const cpf = gerarCPF();
       selecionarPessoaFisica(cpf);
       cy.contains('label', 'Pessoa Jurídica').find('input').check();
@@ -131,10 +146,12 @@ describe('Consultancy form page validation', () => {
         .parent()
         .find('input')
         .should('have.value', '');
+      cy.get('#consultancyType')
+        .select('inCompany')
+        .should('have.value', 'inCompany');
     });
 
-    it.skip('Não deve permitir envio sem aceitar termos', () => {
-      // Preenche quase tudo, menos termos:
+    it.skip('Não deve permitir envio sem aceitar termos (default individual)', () => {
       const nome = faker.person.fullName();
       const email = faker.internet.email();
       const phone = faker.phone.number({ style: 'national' });
@@ -142,14 +159,17 @@ describe('Consultancy form page validation', () => {
       cy.get('#name').type(nome);
       cy.get('#email').type(email);
       cy.get('#phone').type(phone);
-      cy.get('#consultancyType').select('In Company');
+
+      // Default deve ser individual
+      cy.get('#consultancyType').should('have.value', 'individual');
 
       selecionarPessoaFisica(gerarCPF());
 
       cy.contains('button', 'Enviar formulário').should('be.disabled');
     });
 
-    it('Deve validar formatação automática de CPF e CNPJ (se máscara dinâmica)', () => {
+    it('Deve validar formatação automática de CPF e CNPJ mantendo default e ajuste', () => {
+      preencherCamposBasicos('PF');
       cy.contains('label', 'Pessoa Física').find('input').check();
       const rawCpf = faker.string.numeric(11);
       cy.contains('label', 'CPF')
@@ -158,8 +178,12 @@ describe('Consultancy form page validation', () => {
         .type(rawCpf)
         .invoke('val')
         .should('match', cpfRegex);
+      cy.get('#consultancyType').should('have.value', 'individual');
 
       cy.contains('label', 'Pessoa Jurídica').find('input').check();
+      cy.get('#consultancyType')
+        .select('inCompany')
+        .should('have.value', 'inCompany');
       const rawCnpj = faker.string.numeric(14);
       cy.contains('label', 'CNPJ')
         .parent()

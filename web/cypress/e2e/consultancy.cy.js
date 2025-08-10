@@ -1,13 +1,20 @@
 import { faker } from '@faker-js/faker/locale/pt_BR';
 
-const nome = faker.person.fullName();
-const email = faker.internet.email();
-const phone = faker.phone.number({ style: 'national' });
-const cpf = faker.string
-  .numeric(11)
-  .replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
-const paragraphText = faker.lorem.sentence(8);
+// ---------- Geradores ----------
+const gerarCPF = () =>
+  faker.string
+    .numeric(11)
+    .replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
 
+const gerarCNPJ = () =>
+  faker.string
+    .numeric(14)
+    .replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+
+const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
+
+// ---------- Dados comuns ----------
 const socialOptions = [
   'Instagram',
   'YouTube',
@@ -15,52 +22,151 @@ const socialOptions = [
   'Udemy',
   'Indicação de Amigo',
 ];
-
 const techonologies = ['JavaScript', 'Cypress', 'React'];
-
 const successMessage =
   'Sua solicitação de consultoria foi enviada com sucesso! Em breve, nossa equipe entrará em contato através do email fornecido.';
 
+// ---------- Helpers UI ----------
+function preencherCamposBasicos() {
+  const nome = faker.person.fullName();
+  const email = faker.internet.email();
+  const phone = faker.phone.number({ style: 'national' });
+  const paragraphText = faker.lorem.sentence(8);
+
+  cy.get('#name').clear().type(nome).should('have.value', nome);
+  cy.get('#email').clear().type(email).should('have.value', email);
+  cy.get('#phone').clear().type(phone).should('have.value', phone);
+  cy.get('#consultancyType').select('In Company');
+
+  socialOptions.forEach((option) => {
+    cy.contains('label', option).find('input').check().should('be.checked');
+  });
+
+  cy.get('input[type="file"]').selectFile('cypress/fixtures/document.pdf', {
+    force: true,
+  });
+
+  cy.get('#details')
+    .clear()
+    .type(paragraphText)
+    .should('have.value', paragraphText);
+
+  techonologies.forEach((technology) => {
+    cy.get('#technologies').type(`${technology}{enter}`);
+    cy.contains('span', technology).should('be.visible');
+  });
+
+  cy.contains('label', 'termos de uso')
+    .find('input')
+    .check()
+    .should('be.checked');
+}
+
+function selecionarPessoaFisica(cpf) {
+  cy.contains('label', 'Pessoa Física')
+    .find('input')
+    .check()
+    .should('be.checked');
+  cy.contains('label', 'CPF')
+    .parent()
+    .find('input')
+    .clear()
+    .type(cpf)
+    .should('have.value', cpf)
+    .invoke('val')
+    .should('match', cpfRegex);
+}
+
+function selecionarPessoaJuridica(cnpj) {
+  cy.contains('label', 'Pessoa Jurídica')
+    .find('input')
+    .check()
+    .should('be.checked');
+  cy.contains('label', 'CNPJ')
+    .parent()
+    .find('input')
+    .clear()
+    .type(cnpj)
+    .should('have.value', cnpj)
+    .invoke('val')
+    .should('match', cnpjRegex);
+}
+
+function submeterFormulario() {
+  cy.contains('button', 'Enviar formulário').should('be.enabled').click();
+  cy.get('.modal-content').contains(successMessage).should('be.visible');
+}
+
+// ---------- Suite ----------
 describe('Consultancy form page validation', () => {
   beforeEach(() => {
     cy.goTo('Formulários', 'Consultoria');
   });
 
-  it('Should fill request for individual consultance', () => {
-    cy.get('#name').type(nome).should('have.value', nome);
-    cy.get('#email').type(email).should('have.value', email);
-    cy.get('#phone').type(phone).should('have.value', phone);
-    cy.get('#consultancyType').select('In Company');
-    cy.contains('label', 'Pessoa Física')
-      .find('input')
-      .click()
-      .should('be.checked');
+  context('Pessoa Física', () => {
+    it('Deve enviar solicitação válida (CPF)', () => {
+      preencherCamposBasicos();
+      const cpf = gerarCPF();
+      selecionarPessoaFisica(cpf);
+      submeterFormulario();
+    });
+  });
 
-    cy.contains('label', 'CPF')
-      .parent()
-      .find('input')
-      .type(cpf)
-      .should('have.value', cpf);
+  context('Pessoa Jurídica', () => {
+    it('Deve enviar solicitação válida (CNPJ)', () => {
+      preencherCamposBasicos();
+      const cnpj = gerarCNPJ();
+      selecionarPessoaJuridica(cnpj);
+      submeterFormulario();
+    });
+  });
 
-    socialOptions.forEach((option) => {
-      cy.contains('label', option).find('input').click().should('be.checked');
+  context('Comportamentos adicionais', () => {
+    it('Deve limpar campo de documento ao trocar de Pessoa Física para Jurídica', () => {
+      preencherCamposBasicos();
+      const cpf = gerarCPF();
+      selecionarPessoaFisica(cpf);
+      cy.contains('label', 'Pessoa Jurídica').find('input').check();
+      cy.contains('label', 'CNPJ')
+        .parent()
+        .find('input')
+        .should('have.value', '');
     });
 
-    cy.get('input[type="file"]').selectFile('cypress/fixtures/document.pdf', {
-      force: true,
+    it.skip('Não deve permitir envio sem aceitar termos', () => {
+      // Preenche quase tudo, menos termos:
+      const nome = faker.person.fullName();
+      const email = faker.internet.email();
+      const phone = faker.phone.number({ style: 'national' });
+
+      cy.get('#name').type(nome);
+      cy.get('#email').type(email);
+      cy.get('#phone').type(phone);
+      cy.get('#consultancyType').select('In Company');
+
+      selecionarPessoaFisica(gerarCPF());
+
+      cy.contains('button', 'Enviar formulário').should('be.disabled');
     });
 
-    cy.get('#details').type(paragraphText).should('have.value', paragraphText);
+    it('Deve validar formatação automática de CPF e CNPJ (se máscara dinâmica)', () => {
+      cy.contains('label', 'Pessoa Física').find('input').check();
+      const rawCpf = faker.string.numeric(11);
+      cy.contains('label', 'CPF')
+        .parent()
+        .find('input')
+        .type(rawCpf)
+        .invoke('val')
+        .should('match', cpfRegex);
 
-    techonologies.forEach((technology) => {
-      cy.get('#technologies').type(`${technology}{enter}`);
-      cy.contains('span', technology).should('be.visible');
+      cy.contains('label', 'Pessoa Jurídica').find('input').check();
+      const rawCnpj = faker.string.numeric(14);
+      cy.contains('label', 'CNPJ')
+        .parent()
+        .find('input')
+        .type(rawCnpj)
+        .invoke('val')
+        .should('match', cnpjRegex);
     });
-
-    cy.contains('label', 'termos de uso').find('input').check();
-
-    cy.contains('button', 'Enviar formulário').should('be.visible').click();
-
-    cy.get('.modal-content').contains(successMessage).should('be.visible');
   });
 });

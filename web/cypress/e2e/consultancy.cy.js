@@ -1,8 +1,5 @@
 import { faker } from '@faker-js/faker/locale/pt_BR';
 
-const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
-const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
-
 function generateCPF() {
   const n = faker.string.numeric(11);
   return n.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
@@ -58,15 +55,22 @@ describe('Consultancy form page validation', () => {
         .should('have.value', 'inCompany');
     });
 
-    it.skip('Should not allow submission without accepting terms', () => {
-      cy.fillBasicFields('PF', {
-        checkSocial: true,
-        checkTerms: false,
-        attachFile: true,
-        generateTechnologies: true,
-      });
-  cy.selectIndividual(generateCPF());
-      cy.contains('button', 'Enviar formulário').should('be.disabled');
+    it('Should not allow submission without accepting terms', () => {
+    cy.fillIncorrectFields();
+
+      const requiredFields = [
+        { label: 'Nome Completo', message: 'Digite nome e sobrenome' },
+        { label: 'Email', message: 'Informe um email válido' },
+        { label: 'termos de uso', message: 'Você precisa aceitar os termos de uso' }
+      ];
+      requiredFields.forEach(({ label, message }) => {
+        cy.contains('label', label)
+          .parent()
+          .find('p')
+          .should('be.visible')
+          .should('have.text', message)
+          .and('have.class', 'text-red-400')
+          .and('have.css', 'color', 'rgb(248, 113, 113)');
     });
 
     it('Should validate automatic formatting of CPF and CNPJ', () => {
@@ -98,4 +102,5 @@ describe('Consultancy form page validation', () => {
         .should('match', /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/);
     });
   });
+});
 });

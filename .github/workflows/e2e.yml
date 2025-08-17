@@ -3,73 +3,165 @@ name: Regression E2E Tests
 on:
   workflow_dispatch:
   push:
-    branches:
-      - main
+    branches: [main]
   pull_request:
-    branches:
-      - main
+    branches: [main]
 
 concurrency:
-  group: ${{ github.ref }}
+  group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  E2E-Tests:
+  e2e-chrome:
+    name: E2E Chrome (Parallel)
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        containers: [1, 2] 
+        machine: [1, 2]
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4.2.2
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4.2.0
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
-          node-version: '22.16.0'
+          node-version: 20
+          cache: 'yarn'
+          cache-dependency-path: web/yarn.lock
 
       - name: Enable Corepack
         run: corepack enable
 
-      - name: Configure Yarn
+      - name: Prepare Yarn version
         working-directory: web
-        run: |
-          corepack prepare yarn@4.9.2 --activate
-          mkdir -p .yarn/cache
+        run: corepack prepare yarn@4.9.2 --activate
+
+      - name: Cache Yarn artifacts
+        uses: actions/cache@v4
+        with:
+          path: |
+            web/.yarn/cache
+            web/.pnp.*
+          key: yarn-${{ hashFiles('web/yarn.lock') }}
+          restore-keys: |
+            yarn-
+
+      - name: Cache Cypress binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('web/package.json') }}
+          restore-keys: |
+            cypress-${{ runner.os }}-
 
       - name: Install dependencies
         working-directory: web
-        run: yarn install
+        run: yarn install --immutable
 
-      - name: Run Cypress Tests
-        uses: cypress-io/github-action@v6.10.0
+      - name: Run Cypress (Chrome)
+        uses: cypress-io/github-action@v6
         with:
           working-directory: web
           start: yarn dev
           wait-on: 'http://localhost:3000'
-          command: yarn cy:run
-          parallel: true
+          wait-on-timeout: 120
+          browser: chrome
           record: true
+          parallel: true
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload screenshots
         if: failure()
-        uses: actions/upload-artifact@v4.6.0
+        uses: actions/upload-artifact@v4
         with:
-          name: cypress-screenshots
+          name: cypress-screenshots-chrome
           path: web/cypress/screenshots/
           if-no-files-found: ignore
 
       - name: Upload videos
         if: always()
-        uses: actions/upload-artifact@v4.6.0
+        uses: actions/upload-artifact@v4
         with:
-          name: cypress-videos
+          name: cypress-videos-chrome
+          path: web/cypress/videos/
+          if-no-files-found: ignore
+
+  e2e-firefox:
+    name: E2E Firefox (Parallel)
+    needs: e2e-chrome
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        machine: [1, 2]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'yarn'
+          cache-dependency-path: web/yarn.lock
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Restore Yarn cache
+        uses: actions/cache@v4
+        with:
+          path: |
+            web/.yarn/cache
+            web/.pnp.*
+          key: yarn-${{ hashFiles('web/yarn.lock') }}
+          restore-keys: |
+            yarn-
+
+      - name: Cache Cypress binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('web/package.json') }}
+          restore-keys: |
+            cypress-${{ runner.os }}-
+
+      - name: Install dependencies
+        working-directory: web
+        run: yarn install --immutable
+
+      - name: Run Cypress (Firefox)
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: web
+          start: yarn dev
+          wait-on: 'http://localhost:3000'
+          wait-on-timeout: 120
+          browser: firefox
+          record: true
+          parallel: true
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload screenshots
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots-firefox
+          path: web/cypress/screenshots/
+          if-no-files-found: ignore
+
+      - name: Upload videos
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos-firefox
           path: web/cypress/videos/
           if-no-files-found: ignore

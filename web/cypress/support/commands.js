@@ -1,21 +1,16 @@
-// Custom Commands
-
 import { faker } from '@faker-js/faker/locale/pt_BR';
 
-// Ajuste estas listas conforme sua aplicação
 const socialOptions = ['LinkedIn', 'Instagram', 'Twitter'];
 const technologies = ['JavaScript', 'Cypress'];
 const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
 const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
 const successMessage = 'Formulário enviado com sucesso';
 
-// Login simples
 Cypress.Commands.add('login', (email, password) => {
   cy.get('#email').type(email);
   cy.get('#password').type(`${password}{enter}`, { log: false });
 });
 
-// Login usando sessão para acelerar specs
 Cypress.Commands.add('loginSession', (email, password) => {
   cy.session(
     [email, password],
@@ -30,34 +25,32 @@ Cypress.Commands.add('loginSession', (email, password) => {
   cy.visit('/dashboard');
 });
 
-// Navegação por botão + validação de título
 Cypress.Commands.add('goTo', (buttonName, pageTitle) => {
   cy.contains('button', buttonName).should('be.visible').click();
   cy.contains('h1', pageTitle).should('be.visible');
 });
 
-// Preenche campos básicos (parametrizável)
 Cypress.Commands.add(
-  'preencherCamposBasicos',
+  'fillBasicFields',
   (
-    tipoPessoa = 'PF',
+    personType = 'PF',
     opts = {
-      marcarRedes: true,
-      marcarTermos: true,
-      anexarArquivo: true,
-      gerarTecnologias: true,
+      checkSocial: true,
+      checkTerms: true,
+      attachFile: true,
+      generateTechnologies: true,
     },
   ) => {
-    const nome = faker.person.fullName();
+    const name = faker.person.fullName();
     const email = faker.internet.email();
     const phone = faker.phone.number({ style: 'national' });
     const paragraphText = faker.lorem.sentence(8);
 
-    cy.get('#name').clear().type(nome).should('have.value', nome);
+    cy.get('#name').clear().type(name).should('have.value', name);
     cy.get('#email').clear().type(email).should('have.value', email);
     cy.get('#phone').clear().type(phone).should('have.value', phone);
 
-    if (tipoPessoa === 'PJ') {
+    if (personType === 'PJ') {
       cy.get('#consultancyType')
         .select('inCompany')
         .should('have.value', 'inCompany');
@@ -65,13 +58,13 @@ Cypress.Commands.add(
       cy.get('#consultancyType').should('have.value', 'individual');
     }
 
-    if (opts.marcarRedes) {
+    if (opts.checkSocial) {
       socialOptions.forEach((option) => {
         cy.contains('label', option).find('input').check().should('be.checked');
       });
     }
 
-    if (opts.anexarArquivo) {
+    if (opts.attachFile) {
       cy.get('input[type="file"]').selectFile('cypress/fixtures/document.pdf', {
         force: true,
       });
@@ -82,14 +75,14 @@ Cypress.Commands.add(
       .type(paragraphText)
       .should('have.value', paragraphText);
 
-    if (opts.gerarTecnologias) {
+    if (opts.generateTechnologies) {
       technologies.forEach((technology) => {
         cy.get('#technologies').type(`${technology}{enter}`);
         cy.contains('span', technology).should('be.visible');
       });
     }
 
-    if (opts.marcarTermos) {
+    if (opts.checkTerms) {
       cy.contains('label', 'termos de uso')
         .find('input')
         .check()
@@ -98,8 +91,7 @@ Cypress.Commands.add(
   },
 );
 
-// Seleciona pessoa física e valida CPF
-Cypress.Commands.add('selecionarPessoaFisica', (cpf) => {
+Cypress.Commands.add('selectIndividual', (cpf) => {
   cy.contains('label', 'Pessoa Física')
     .find('input')
     .check()
@@ -115,8 +107,7 @@ Cypress.Commands.add('selecionarPessoaFisica', (cpf) => {
     .should('match', cpfRegex);
 });
 
-// Seleciona pessoa jurídica e valida CNPJ
-Cypress.Commands.add('selecionarPessoaJuridica', (cnpj) => {
+Cypress.Commands.add('selectCompany', (cnpj) => {
   cy.contains('label', 'Pessoa Jurídica')
     .find('input')
     .check()
@@ -134,14 +125,12 @@ Cypress.Commands.add('selecionarPessoaJuridica', (cnpj) => {
     .should('match', cnpjRegex);
 });
 
-// Submete formulário e valida modal de sucesso
-Cypress.Commands.add('submeterFormulario', () => {
+Cypress.Commands.add('submitForm', () => {
   cy.contains('button', 'Enviar formulário').should('be.enabled').click();
   cy.get('.modal-content').contains(successMessage).should('be.visible');
 });
 
-// Preenche formulário usando fixture (dados determinísticos)
-Cypress.Commands.add('preencherFormularioFixture', (data) => {
+Cypress.Commands.add('fillFormFixture', (data) => {
   cy.get('#name').clear().type(data.name).should('have.value', data.name);
   cy.get('#email').clear().type(data.email).should('have.value', data.email);
   cy.get('#phone').clear().type(data.phone).should('have.value', data.phone);

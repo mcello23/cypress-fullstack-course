@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "serve -s dist -p 3000",
-    "co": "cypress open",
+    "co": "cypress open --browser chrome",
     "cy:run": "cypress run --browser chrome --headless --record --key $CYPRESS_RECORD_KEY",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",

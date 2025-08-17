@@ -1,5 +1,18 @@
 import { faker } from '@faker-js/faker/locale/pt_BR';
 
+const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
+const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
+
+function generateCPF() {
+  const n = faker.string.numeric(11);
+  return n.replace(/(\d{3})(\d{3})(\d{3})(\d{2})/, '$1.$2.$3-$4');
+}
+
+function generateCNPJ() {
+  const n = faker.string.numeric(14);
+  return n.replace(/(\d{2})(\d{3})(\d{3})(\d{4})(\d{2})/, '$1.$2.$3/$4-$5');
+}
+
 describe('Consultancy form page validation', () => {
   beforeEach(() => {
     cy.goTo('Formulários', 'Consultoria');
@@ -7,34 +20,34 @@ describe('Consultancy form page validation', () => {
 
   context('Individual Person (PF)', () => {
     it('Should submit a valid request (CPF) without changing the default type', () => {
-      cy.preencherCamposBasicos('PF');
-      const cpf = gerarCPF();
-      cy.selecionarPessoaFisica(cpf);
-      cy.submeterFormulario();
+      cy.fillBasicFields('PF');
+      const cpf = generateCPF();
+      cy.selectIndividual(cpf);
+      cy.submitForm();
     });
 
     it('Should submit a valid request (CPF) using fixed fixture data', () => {
       cy.fixture('consultancy').then((data) => {
-        cy.preencherFormularioFixture(data);
-        cy.submeterFormulario();
+        cy.fillFormFixture(data);
+        cy.submitForm();
       });
     });
   });
 
   context('Legal Entity (PJ)', () => {
     it('Should submit a valid request (CNPJ) changing to inCompany', () => {
-      cy.preencherCamposBasicos('PJ');
-      const cnpj = gerarCNPJ();
-      cy.selecionarPessoaJuridica(cnpj);
-      cy.submeterFormulario();
+      cy.fillBasicFields('PJ');
+      const cnpj = generateCNPJ();
+      cy.selectCompany(cnpj);
+      cy.submitForm();
     });
   });
 
   context('Additional behaviors', () => {
     it('Should clear document field when switching from PF to PJ', () => {
-      cy.preencherCamposBasicos('PF');
-      const cpf = gerarCPF();
-      cy.selecionarPessoaFisica(cpf);
+      cy.fillBasicFields('PF');
+      const cpf = generateCPF();
+      cy.selectIndividual(cpf);
       cy.contains('label', 'Pessoa Jurídica').find('input').check();
       cy.contains('label', 'CNPJ')
         .parent()
@@ -46,22 +59,22 @@ describe('Consultancy form page validation', () => {
     });
 
     it.skip('Should not allow submission without accepting terms', () => {
-      cy.preencherCamposBasicos('PF', {
-        marcarRedes: true,
-        marcarTermos: false,
-        anexarArquivo: true,
-        gerarTecnologias: true,
+      cy.fillBasicFields('PF', {
+        checkSocial: true,
+        checkTerms: false,
+        attachFile: true,
+        generateTechnologies: true,
       });
-      cy.selecionarPessoaFisica(gerarCPF());
+  cy.selectIndividual(generateCPF());
       cy.contains('button', 'Enviar formulário').should('be.disabled');
     });
 
     it('Should validate automatic formatting of CPF and CNPJ', () => {
-      cy.preencherCamposBasicos('PF', {
-        marcarRedes: false,
-        marcarTermos: false,
-        anexarArquivo: false,
-        gerarTecnologias: false,
+      cy.fillBasicFields('PF', {
+        checkSocial: false,
+        checkTerms: false,
+        attachFile: false,
+        generateTechnologies: false,
       });
       const rawCpf = faker.string.numeric(11);
       cy.contains('label', 'CPF')

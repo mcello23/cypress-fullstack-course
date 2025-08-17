@@ -1,10 +1,10 @@
 import { faker } from '@faker-js/faker/locale/pt_BR';
 
-const socialOptions = ['LinkedIn', 'Instagram', 'Twitter'];
+const socialOptions = ['LinkedIn', 'Instagram', 'Udemy', 'YouTube'];
 const technologies = ['JavaScript', 'Cypress'];
 const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
 const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
-const successMessage = 'Formulário enviado com sucesso';
+const successMessage = 'Sua solicitação de consultoria foi enviada com sucesso! Em breve, nossa equipe entrará em contato através do email fornecido.';
 
 Cypress.Commands.add('login', (email, password) => {
   cy.get('#email').type(email);
@@ -50,7 +50,9 @@ Cypress.Commands.add(
     cy.get('#email').clear().type(email).should('have.value', email);
     cy.get('#phone').clear().type(phone).should('have.value', phone);
 
-    if (personType === 'PJ') {
+    const isCompany = personType === 'PJ' || personType === 'company' || personType === 'inCompany';
+
+    if (isCompany) {
       cy.get('#consultancyType')
         .select('inCompany')
         .should('have.value', 'inCompany');
@@ -90,6 +92,7 @@ Cypress.Commands.add(
     }
   },
 );
+
 
 Cypress.Commands.add('selectIndividual', (cpf) => {
   cy.contains('label', 'Pessoa Física')
@@ -174,3 +177,10 @@ Cypress.Commands.add('fillFormFixture', (data) => {
       .should('be.checked');
   }
 });
+
+
+Cypress.Commands.add('preencherCamposBasicos', (...args) => cy.fillBasicFields(...args));
+Cypress.Commands.add('selecionarPessoaFisica', (...args) => cy.selectIndividual(...args));
+Cypress.Commands.add('selecionarPessoaJuridica', (...args) => cy.selectCompany(...args));
+Cypress.Commands.add('submeterFormulario', (...args) => cy.submitForm(...args));
+Cypress.Commands.add('preencherFormularioFixture', (...args) => cy.fillFormFixture(...args));

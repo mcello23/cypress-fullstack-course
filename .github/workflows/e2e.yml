@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   e2e:
-    name: E2E ${{ matrix.browser }} (node ${{ matrix.machine }})
+    name: E2E ${{ matrix.browser }} (machine ${{ matrix.machine }})
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -26,24 +26,26 @@ jobs:
     env:
       CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      YARN_ENABLE_IMMUTABLE_INSTALLS: "true"
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # NÃO usar cache: yarn (ele executa yarn v1 antes do corepack)
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: yarn
-          cache-dependency-path: web/yarn.lock
 
-      - name: Enable & Prepare Yarn 4
+      - name: Enable Corepack + Yarn 4
         run: |
           corepack enable
           corepack prepare yarn@4.9.2 --activate
           yarn --version
 
-      - name: Cache Yarn artifacts
+      # Cache específico para Yarn Berry (após corepack)
+      - name: Restore Yarn cache
         uses: actions/cache@v4
         with:
           path: |
@@ -53,32 +55,43 @@ jobs:
           restore-keys: |
             yarn-
 
-      - name: Cache Cypress binary
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/Cypress
-          key: cypress-${{ runner.os }}-${{ hashFiles('web/package.json') }}
-          restore-keys: |
-            cypress-${{ runner.os }}-
-
-      - name: Install dependencies
+      - name: Install dependencies (Yarn 4)
         working-directory: web
         run: yarn install --immutable
 
-      - name: Show Yarn version (sanity)
+      # Se precisar gerar dist (sua app usa serve -s dist):
+      # Adicione um build. Exemplo (ajuste conforme tech stack):
+      # - name: Build
+      #   working-directory: web
+      #   run: yarn build
+
+      - name: List files (sanity)
         working-directory: web
-        run: yarn --version
+        run: ls -1
+
+      - name: Start app
+        working-directory: web
+        run: |
+            if [ ! -d dist ]; then
+              echo "::warning::Diretório dist não existe. Verifique se precisa de passo de build."
+              mkdir -p dist
+              echo "<html><body><h1>Placeholder</h1></body></html>" > dist/index.html
+            fi
+            npx serve -s dist -p 3000 &
+            echo $! > serve.pid
+
+      - name: Wait on app
+        working-directory: web
+        run: npx wait-on http://localhost:3000 --timeout 120000
 
       - name: Run Cypress
         uses: cypress-io/github-action@v6
         with:
           working-directory: web
-          start: corepack yarn dev
-          wait-on: http://localhost:3000
-          wait-on-timeout: 120
           browser: ${{ matrix.browser }}
           record: true
           parallel: true
+          install: false          # evita instalação extra (que chamaria yarn v1)
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -98,3 +111,9 @@ jobs:
           name: cypress-videos-${{ matrix.browser }}-${{ matrix.machine }}
           path: web/cypress/videos/
           if-no-files-found: ignore
+
+      - name: Stop app
+        if: always()
+        working-directory: web
+        run: |
+          if [ -f serve.pid ]; then kill $(cat serve.pid) || true; fi

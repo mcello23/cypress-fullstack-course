@@ -1,5 +1,7 @@
-export default {
+module.exports = {
   e2e: {
+    experimentalStudio: true,
+    experimentalPromptCommand: true,
     projectId: 'bv1wq1',
     enableScreenshots: true,
     enableVideo: true,

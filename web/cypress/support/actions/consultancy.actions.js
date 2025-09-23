@@ -1,4 +1,4 @@
-import { faker } from '@faker-js/faker/locale/pt_BR';
+const { faker } = require('@faker-js/faker/locale/pt_BR');
 
 const socialOptions = ['LinkedIn', 'Instagram', 'Udemy', 'YouTube'];
 const technologies = ['JavaScript', 'Cypress'];

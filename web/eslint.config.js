@@ -2,6 +2,9 @@ import js from '@eslint/js';
 
 export default [
   {
+    languageOptions: {
+      sourceType: 'module',
+    },
     ignores: [
       'node_modules/',
       'dist/',
@@ -17,6 +20,20 @@ export default [
     ],
   },
   js.configs.recommended,
+  {
+    files: ['cypress.config.js', 'eslint.config.js'],
+    languageOptions: {
+      ecmaVersion: 2022,
+      sourceType: 'script',
+      globals: {
+        module: 'readonly',
+        require: 'readonly',
+        process: 'readonly',
+        __dirname: 'readonly',
+        __filename: 'readonly',
+      },
+    },
+  },
   {
     files: ['**/*.js'],
     languageOptions: {

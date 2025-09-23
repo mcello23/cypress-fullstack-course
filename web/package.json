@@ -18,7 +18,7 @@
   "devDependencies": {
     "@eslint/js": "^9.28.0",
     "@faker-js/faker": "^9.8.0",
-    "cypress": "14.5.4",
+    "cypress": "https://cdn.cypress.io/beta/npm/15.3.0/darwin-arm64/feat/cy-prompt-88bbe7f0414f0fc1976b00c2717cdb1abe49fa16/cypress.tgz",
     "eslint": "^9.28.0",
     "eslint-plugin-cypress": "^5.0.1",
     "prettier": "^3.5.3"

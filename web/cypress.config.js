@@ -1,7 +1,6 @@
 module.exports = {
   viewportHeight: 1080,
   viewportWidth: 1920,
-  numTestsKeptInMemory: 1,
   retries: {
     experimentalStrategy: 'detect-flake-and-pass-on-threshold',
     experimentalOptions: {
@@ -21,8 +20,6 @@ module.exports = {
     enableScreenshots: true,
     enableVideo: true,
     baseUrl: 'http://localhost:3000',
-    viewportWidth: 1920,
-    viewportHeight: 1080,
     experimentalRunAllSpecs: true,
     setupNodeEvents() {},
   },

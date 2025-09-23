@@ -64,7 +64,7 @@ jobs:
         working-directory: web
         run: yarn install --immutable
 
-      - name: Prepare dist (fallback se não houver build)
+      - name: Prepare dist (fallback if needed)
         working-directory: web
         run: |
           if [ ! -d dist ]; then
@@ -72,7 +72,7 @@ jobs:
             echo "<html><body><h1>Placeholder</h1></body></html>" > dist/index.html
           fi
 
-      - name: Run Cypress (Chrome paralelizado)
+      - name: Run Cypress (Chrome in parallel)
         uses: cypress-io/github-action@v6
         with:
           working-directory: web
@@ -109,7 +109,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        machine: [1, 2]
+        machine: [1, 2, 3, 4]
     env:
       CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -152,7 +152,7 @@ jobs:
         working-directory: web
         run: yarn install --immutable
 
-      - name: Prepare dist (fallback)
+      - name: Prepare dist (fallback if needed)
         working-directory: web
         run: |
           if [ ! -d dist ]; then
@@ -160,7 +160,7 @@ jobs:
             echo "<html><body><h1>Placeholder</h1></body></html>" > dist/index.html
           fi
 
-      - name: Run Cypress (Firefox paralelizado)
+      - name: Run Cypress (Firefox in parallel)
         uses: cypress-io/github-action@v6
         with:
           working-directory: web

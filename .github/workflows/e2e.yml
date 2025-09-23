@@ -21,7 +21,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        machine: [1, 2, 3]
+        machine: [1, 2]
     env:
       CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -109,7 +109,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        machine: [1, 2, 3]
+        machine: [1, 2]
     env:
       CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

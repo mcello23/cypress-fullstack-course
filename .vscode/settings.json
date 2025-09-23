@@ -1,4 +1,13 @@
 {
-    "explorer.compactFolders": false,
-    "npm.packageManager": "yarn"
+  "eslint.useFlatConfig": true,
+  "eslint.workingDirectories": [
+    { "directory": "web", "changeProcessCWD": true }
+  ],
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": "always"
+  },
+  "editor.formatOnSave": true,
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  }
 }

@@ -1,8 +1,16 @@
-Cypress.Commands.add('preencherCamposBasicos', (...args) => cy.fillBasicFields(...args));
-Cypress.Commands.add('selecionarPessoaFisica', (...args) => cy.selectIndividual(...args));
-Cypress.Commands.add('selecionarPessoaJuridica', (...args) => cy.selectCompany(...args));
+Cypress.Commands.add('preencherCamposBasicos', (...args) =>
+  cy.fillBasicFields(...args),
+);
+Cypress.Commands.add('selecionarPessoaFisica', (...args) =>
+  cy.selectIndividual(...args),
+);
+Cypress.Commands.add('selecionarPessoaJuridica', (...args) =>
+  cy.selectCompany(...args),
+);
 Cypress.Commands.add('submeterFormulario', (...args) => cy.submitForm(...args));
-Cypress.Commands.add('preencherFormularioFixture', (...args) => cy.fillFormFixture(...args));
+Cypress.Commands.add('preencherFormularioFixture', (...args) =>
+  cy.fillFormFixture(...args),
+);
 
 Cypress.Commands.add('login', (email, password) => {
   cy.get('#email').type(email);

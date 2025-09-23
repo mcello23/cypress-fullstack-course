@@ -4,9 +4,8 @@ const socialOptions = ['LinkedIn', 'Instagram', 'Udemy', 'YouTube'];
 const technologies = ['JavaScript', 'Cypress'];
 const cpfRegex = /^\d{3}\.\d{3}\.\d{3}-\d{2}$/;
 const cnpjRegex = /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/;
-const successMessage = 'Sua solicitação de consultoria foi enviada com sucesso! Em breve, nossa equipe entrará em contato através do email fornecido.';
-
-
+const successMessage =
+  'Sua solicitação de consultoria foi enviada com sucesso! Em breve, nossa equipe entrará em contato através do email fornecido.';
 
 Cypress.Commands.add(
   'fillBasicFields',
@@ -28,7 +27,10 @@ Cypress.Commands.add(
     cy.get('#email').clear().type(email).should('have.value', email);
     cy.get('#phone').clear().type(phone).should('have.value', phone);
 
-    const isCompany = personType === 'PJ' || personType === 'company' || personType === 'inCompany';
+    const isCompany =
+      personType === 'PJ' ||
+      personType === 'company' ||
+      personType === 'inCompany';
 
     if (isCompany) {
       cy.get('#consultancyType')
@@ -72,24 +74,22 @@ Cypress.Commands.add(
 );
 
 Cypress.Commands.add('fillIncorrectFields', () => {
-    const phone = faker.phone.number({ style: 'national' });
+  const phone = faker.phone.number({ style: 'national' });
 
-    cy.get('#phone').clear().type(phone).should('have.value', phone);
-    cy.get('#consultancyType')
-      .select('inCompany')
-      .should('have.value', 'inCompany');
-    socialOptions.forEach((option) => {
-      cy.contains('label', option).find('input').check().should('be.checked');
-    });
+  cy.get('#phone').clear().type(phone).should('have.value', phone);
+  cy.get('#consultancyType')
+    .select('inCompany')
+    .should('have.value', 'inCompany');
+  socialOptions.forEach((option) => {
+    cy.contains('label', option).find('input').check().should('be.checked');
+  });
 
-    technologies.forEach((technology) => {
-      cy.get('#technologies').type(`${technology}{enter}`);
-      cy.contains('span', technology).should('be.visible');
-     });
+  technologies.forEach((technology) => {
+    cy.get('#technologies').type(`${technology}{enter}`);
+    cy.contains('span', technology).should('be.visible');
+  });
   cy.contains('button', 'Enviar formulário').should('be.enabled').click();
-  },
-);
-
+});
 
 Cypress.Commands.add('selectIndividual', (cpf) => {
   cy.contains('label', 'Pessoa Física')

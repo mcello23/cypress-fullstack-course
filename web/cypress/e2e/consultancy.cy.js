@@ -56,12 +56,15 @@ describe('Consultancy form page validation', () => {
     });
 
     it('Should not allow submission without accepting terms', () => {
-    cy.fillIncorrectFields();
+      cy.fillIncorrectFields();
 
       const requiredFields = [
         { label: 'Nome Completo', message: 'Digite nome e sobrenome' },
         { label: 'Email', message: 'Informe um email válido' },
-        { label: 'termos de uso', message: 'Você precisa aceitar os termos de uso' }
+        {
+          label: 'termos de uso',
+          message: 'Você precisa aceitar os termos de uso',
+        },
       ];
       requiredFields.forEach(({ label, message }) => {
         cy.contains('label', label)
@@ -71,36 +74,36 @@ describe('Consultancy form page validation', () => {
           .should('have.text', message)
           .and('have.class', 'text-red-400')
           .and('have.css', 'color', 'rgb(248, 113, 113)');
-    });
-
-    it('Should validate automatic formatting of CPF and CNPJ', () => {
-      cy.fillBasicFields('PF', {
-        checkSocial: false,
-        checkTerms: false,
-        attachFile: false,
-        generateTechnologies: false,
       });
-      const rawCpf = faker.string.numeric(11);
-      cy.contains('label', 'CPF')
-        .parent()
-        .find('input')
-        .type(rawCpf)
-        .invoke('val')
-        .should('match', /^\d{3}\.\d{3}\.\d{3}-\d{2}$/);
-      cy.get('#consultancyType').should('have.value', 'individual');
 
-      cy.contains('label', 'Pessoa Jurídica').find('input').check();
-      cy.get('#consultancyType')
-        .select('inCompany')
-        .should('have.value', 'inCompany');
-      const rawCnpj = faker.string.numeric(14);
-      cy.contains('label', 'CNPJ')
-        .parent()
-        .find('input')
-        .type(rawCnpj)
-        .invoke('val')
-        .should('match', /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/);
+      it('Should validate automatic formatting of CPF and CNPJ', () => {
+        cy.fillBasicFields('PF', {
+          checkSocial: false,
+          checkTerms: false,
+          attachFile: false,
+          generateTechnologies: false,
+        });
+        const rawCpf = faker.string.numeric(11);
+        cy.contains('label', 'CPF')
+          .parent()
+          .find('input')
+          .type(rawCpf)
+          .invoke('val')
+          .should('match', /^\d{3}\.\d{3}\.\d{3}-\d{2}$/);
+        cy.get('#consultancyType').should('have.value', 'individual');
+
+        cy.contains('label', 'Pessoa Jurídica').find('input').check();
+        cy.get('#consultancyType')
+          .select('inCompany')
+          .should('have.value', 'inCompany');
+        const rawCnpj = faker.string.numeric(14);
+        cy.contains('label', 'CNPJ')
+          .parent()
+          .find('input')
+          .type(rawCnpj)
+          .invoke('val')
+          .should('match', /^\d{2}\.\d{3}\.\d{3}\/\d{4}-\d{2}$/);
+      });
     });
   });
-});
 });

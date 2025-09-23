@@ -25,4 +25,8 @@ describe('Login', () => {
       'be.visible',
     );
   });
+
+  it.skip('Uses cy.prompt', () => {
+    cy.prompt(['Visit https://cloud.cypress.io/login']);
+  });
 });

@@ -35,8 +35,8 @@ describe('Login', () => {
         'Insert email marcelo@webdojo.com into the input e-mail',
         'Insert {{password}} into the input password',
         'Validate that both fields were filled correctly',
-        'Validate that the Entrar button is enabled',
-        'Click on the Entrar button',
+        'Validate that the Enter button is enabled',
+        'Click on the Enter button',
         'Validate that the user name is Marcelo Costa',
       ],
       {

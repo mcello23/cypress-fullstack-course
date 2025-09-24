@@ -2,9 +2,11 @@ import './actions/consultancy.actions';
 import './commands';
 
 beforeEach(() => {
-  if (Cypress.spec.name.includes('consultancy')) {
-    cy.loginSession('marcelo@webdojo.com', 'katana123');
+  const specName = Cypress.spec && Cypress.spec.name ? Cypress.spec.name : '';
+  if (/login/i.test(specName)) {
+    return;
   }
+  cy.loginSession('marcelo@webdojo.com', 'katana123');
 });
 
 //eslint-disable-next-line no-unused-vars

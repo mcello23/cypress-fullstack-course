@@ -26,7 +26,7 @@ describe('Login', () => {
     );
   });
 
-  it('Uses cy.prompt', () => {
+  it('Uses cy.prompt', function () {
     if (Cypress.browser?.family !== 'chromium') {
       this.skip();
     }

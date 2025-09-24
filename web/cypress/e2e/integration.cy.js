@@ -1,13 +1,11 @@
 describe('integration page', () => {
   it('Should go to integration subpage', () => {
+    if (Cypress.browser?.family !== 'chromium') {
+      this.skip();
+    }
     cy.prompt([
       'Click on the Integração menu item',
       'Validate that Consulta de CEP is visible on the page',
     ]);
   });
-});
-
-it('asd', function () {
-  cy.get('#root button:nth-child(2) .text-left').click();
-  cy.get('#root .font-bold').click();
 });

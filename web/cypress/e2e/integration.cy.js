@@ -1,5 +1,5 @@
 describe('integration page', () => {
-  it('Should go to integration subpage', () => {
+  it('Should go to integration subpage', function () {
     if (Cypress.browser?.family !== 'chromium') {
       this.skip();
     }

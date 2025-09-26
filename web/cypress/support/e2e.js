@@ -3,7 +3,11 @@ import './commands';
 
 beforeEach(function () {
   const specName = Cypress.spec && Cypress.spec.name ? Cypress.spec.name : '';
-  if (/board-test/i.test(specName) && Cypress.browser?.family !== 'chromium') {
+  if (
+    /board-test/i.test(specName) &&
+    /integration/i.test(specName) &&
+    Cypress.browser?.family !== 'chromium'
+  ) {
     this.skip();
     return;
   }

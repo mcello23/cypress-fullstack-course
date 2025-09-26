@@ -18,7 +18,7 @@ describe('Board', () => {
 
   it('Should access Office of Finance capsule and validate its numbers', () => {
     cy.prompt([
-      `visit this Office of Finance capsule ${FINANCE_CAPSULE}`,
+      `visit Office of Finance capsule ${FINANCE_CAPSULE}`,
       'Wait for the page to load, like 8 seconds',
       'Validate that Welcome to Finance is seen on the page',
       'Validate that User:mcosta@board.com is seen',
@@ -33,9 +33,9 @@ describe('Board', () => {
 
   it('Should create a Procedure with prompt inputs', () => {
     cy.prompt([
-      `visit this URL ${PROCEDURES}`,
+      `visit URL ${PROCEDURES}`,
       'Wait for the page to load, like 15 seconds',
-      'Click on the Add button right next to the Procedures title',
+      'Click on the yellow Add button right next to the Procedures title',
       `On the name input, type ${STRING}`,
       'Click on the STEPS button, then on the Step button',
       'Force click on "Go to Capsule" button',
@@ -49,7 +49,10 @@ describe('Board', () => {
     ]);
   });
 
-  after(() => {
+  after(function () {
+    if (Cypress.browser?.family !== 'chromium') {
+      this.skip();
+    }
     cy.get(
       '[aria-describedby="cdk-describedby-message-ng-1-10"] .mat-mdc-button-touch-target',
     ).click();

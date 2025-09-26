@@ -1,0 +1,107 @@
+name: E2E Runner (reusable)
+
+on:
+  workflow_dispatch:
+  workflow_call:
+    inputs:
+      browser:
+        required: true
+        type: string
+      group:
+        required: true
+        type: string
+
+jobs:
+  e2e:
+    name: E2E ${{ inputs.browser }} (machine ${{ matrix.machine }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        machine: [1, 2]
+    env:
+      YARN_ENABLE_IMMUTABLE_INSTALLS: "true"
+      COREPACK_ENABLE_DOWNLOAD_PROMPT: "0"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.17.0
+
+      - name: Enable Corepack + pin Yarn 4.10.3
+        run: |
+          corepack enable
+          corepack prepare yarn@4.10.3 --activate
+          yarn --version
+
+      - name: Ensure Yarn release file exists (debug)
+        working-directory: web
+        run: |
+          mkdir -p .yarn/releases
+          ls -la .yarn/releases || true
+
+      - name: Cache Yarn (Berry)
+        uses: actions/cache@v4
+        with:
+          path: |
+            web/.yarn/cache
+            web/.pnp.*
+          key: yarn-${{ hashFiles('web/yarn.lock') }}
+          restore-keys: |
+            yarn-
+
+      - name: Cache Cypress binary
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/Cypress
+          key: cypress-${{ runner.os }}-${{ hashFiles('web/package.json') }}
+          restore-keys: |
+            cypress-${{ runner.os }}-
+
+      - name: Install deps (immutable)
+        working-directory: web
+        run: yarn install --immutable
+
+      - name: Prepare dist (fallback if needed)
+        working-directory: web
+        run: |
+          if [ ! -d dist ]; then
+            mkdir -p dist
+            echo "<html><body><h1>Placeholder</h1></body></html>" > dist/index.html
+          fi
+
+      - name: Run Cypress
+        uses: cypress-io/github-action@v6
+        with:
+          working-directory: web
+          start: yarn dev
+          wait-on: http://localhost:3000
+          wait-on-timeout: 120
+          browser: ${{ inputs.browser }}
+          record: true
+          parallel: true
+          group: ${{ inputs.group }}
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+          BOARD_USERNAME: ${{ secrets.BOARD_USERNAME }}
+          BOARD_PASSWORD: ${{ secrets.BOARD_PASSWORD }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload screenshots (on failure)
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots-${{ inputs.browser }}-${{ matrix.machine }}
+          path: web/cypress/screenshots/
+          if-no-files-found: ignore
+
+      - name: Upload videos (always)
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos-${{ inputs.browser }}-${{ matrix.machine }}
+          path: web/cypress/videos/
+          if-no-files-found: ignore

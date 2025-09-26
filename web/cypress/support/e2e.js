@@ -3,7 +3,7 @@ import './commands';
 
 beforeEach(() => {
   const specName = Cypress.spec && Cypress.spec.name ? Cypress.spec.name : '';
-  if (/login/i.test(specName)) {
+  if (/login/i.test(specName) || /board-test/i.test(specName)) {
     return;
   }
   cy.loginSession('marcelo@webdojo.com', 'katana123');

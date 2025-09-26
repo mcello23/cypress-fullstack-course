@@ -31,6 +31,48 @@ Cypress.Commands.add('loginSession', (email, password) => {
   cy.visit('/dashboard');
 });
 
+Cypress.Commands.add('loginBoard', () => {
+  cy.session(
+    'boardSession',
+    () => {
+      cy.intercept({
+        method: 'POST',
+        url: '/Account/Login',
+      }).as('preLogin');
+      cy.intercept({
+        method: 'POST',
+        url: '/Account/SignIn',
+      }).as('postLogin');
+      cy.intercept({
+        method: 'GET',
+        url: '/connect/userinfo',
+      }).as('userInfo');
+      cy.visit('https://qcrelease-c3.board.com/', {
+        retryOnNetworkFailure: true,
+        retryOnStatusCodeFailure: true,
+      });
+      cy.get('#Username')
+        .should('be.visible')
+        .type(Cypress.env('BOARD_USERNAME'));
+      cy.get('form').last().submit();
+      cy.wait('@preLogin').then((xhr) => {
+        assert.equal(xhr.response.statusCode, 200);
+      });
+      cy.get('#Password')
+        .should('be.visible')
+        .type(Cypress.env('BOARD_PASSWORD'));
+      cy.get('form').last().submit();
+      cy.wait('@postLogin').then((xhr) => {
+        assert.equal(xhr.response.statusCode, 200);
+      });
+      cy.wait('@userInfo').then((xhr) => {
+        assert.equal(xhr.response.statusCode, 200);
+      });
+    },
+    { cacheAcrossSpecs: true },
+  );
+});
+
 Cypress.Commands.add('goTo', (buttonName, pageTitle) => {
   cy.contains('button', buttonName).should('be.visible').click();
   cy.contains('h1', pageTitle).should('be.visible');

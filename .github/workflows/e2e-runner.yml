@@ -93,10 +93,10 @@ jobs:
           group: ${{ inputs.group }}
         env:
           CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-          BOARD_USERNAME: ${{ secrets.BOARD_USERNAME }}
-          BOARD_PASSWORD: ${{ secrets.BOARD_PASSWORD }}
+          CYPRESS_BOARD_USERNAME: ${{ secrets.BOARD_USERNAME }}
+          CYPRESS_BOARD_PASSWORD: ${{ secrets.BOARD_PASSWORD }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          
       - name: Upload screenshots (on failure)
         if: failure()
         uses: actions/upload-artifact@v4

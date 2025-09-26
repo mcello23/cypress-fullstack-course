@@ -24,7 +24,6 @@ jobs:
       CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
       BOARD_USERNAME: ${{ secrets.BOARD_USERNAME }}
       BOARD_PASSWORD: ${{ secrets.BOARD_PASSWORD }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   e2e-firefox:
     uses: ./.github/workflows/e2e-runner.yml
@@ -35,4 +34,3 @@ jobs:
       CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
       BOARD_USERNAME: ${{ secrets.BOARD_USERNAME }}
       BOARD_PASSWORD: ${{ secrets.BOARD_PASSWORD }}
-      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

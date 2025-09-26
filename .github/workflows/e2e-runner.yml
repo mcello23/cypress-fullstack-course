@@ -17,9 +17,7 @@ on:
         required: true
       BOARD_PASSWORD:
         required: true
-      GITHUB_TOKEN:
-        required: true
-        
+
 jobs:
   e2e:
     name: E2E ${{ inputs.browser }} (machine ${{ matrix.machine }})

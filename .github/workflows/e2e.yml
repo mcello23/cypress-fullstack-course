@@ -44,7 +44,10 @@ jobs:
 
       - name: Ensure Yarn release (create .yarn/releases/yarn-4.10.3.cjs)
         working-directory: web
-        run: yarn set version 4.10.3
+        run: |
+          mkdir -p .yarn/releases
+          yarn set version 4.10.3
+          ls -la .yarn/releases
 
       - name: Cache Yarn (Berry)
         uses: actions/cache@v4
@@ -138,7 +141,10 @@ jobs:
 
       - name: Ensure Yarn release (create .yarn/releases/yarn-4.10.3.cjs)
         working-directory: web
-        run: yarn set version 4.10.3
+        run: |
+          mkdir -p .yarn/releases
+          yarn set version 4.10.3
+          ls -la .yarn/releases
 
       - name: Cache Yarn (Berry)
         uses: actions/cache@v4

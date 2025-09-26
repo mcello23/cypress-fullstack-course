@@ -42,13 +42,6 @@ jobs:
           corepack prepare yarn@4.10.3 --activate
           yarn --version
 
-      - name: Ensure Yarn release (create .yarn/releases/yarn-4.10.3.cjs)
-        working-directory: web
-        run: |
-          mkdir -p web/.yarn/releases
-          yarn set version 4.10.3
-          ls -la web/.yarn/releases
-
       - name: Cache Yarn (Berry)
         uses: actions/cache@v4
         with:
@@ -138,13 +131,6 @@ jobs:
           corepack enable
           corepack prepare yarn@4.10.3 --activate
           yarn --version
-
-      - name: Ensure Yarn release (create .yarn/releases/yarn-4.10.3.cjs)
-        working-directory: web
-        run: |
-          mkdir -p web/.yarn/releases
-          yarn set version 4.10.3
-          ls -la web/.yarn/releases
 
       - name: Cache Yarn (Berry)
         uses: actions/cache@v4

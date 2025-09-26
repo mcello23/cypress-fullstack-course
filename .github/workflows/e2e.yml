@@ -62,7 +62,7 @@ jobs:
 
       - name: Install deps
         working-directory: web
-        run: yarn install --immutable
+        run: yarn install
 
       - name: Prepare dist (fallback if needed)
         working-directory: web
@@ -152,7 +152,7 @@ jobs:
 
       - name: Install deps
         working-directory: web
-        run: yarn install --immutable
+        run: yarn install
 
       - name: Prepare dist (fallback if needed)
         working-directory: web

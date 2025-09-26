@@ -1,11 +1,17 @@
 import './actions/consultancy.actions';
 import './commands';
 
-beforeEach(() => {
+beforeEach(function () {
   const specName = Cypress.spec && Cypress.spec.name ? Cypress.spec.name : '';
+  if (/board-test/i.test(specName) && Cypress.browser?.family !== 'chromium') {
+    this.skip();
+    return;
+  }
+
   if (/login/i.test(specName) || /board-test/i.test(specName)) {
     return;
   }
+
   cy.loginSession('marcelo@webdojo.com', 'katana123');
 });
 

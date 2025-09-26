@@ -8,9 +8,10 @@
   },
   "scripts": {
     "dev": "serve -s dist -p 3000",
-    "co": "cypress open --e2e --browser chrome",
-    "cr": "cypress run --e2e --browser chrome --headless",
-    "cr:ci": "cypress run --e2e --browser chrome --headless --record",
+    "co": "cypress open --e2e -b chrome",
+    "cr:chrome": "cypress run --e2e -b chrome --headless",
+    "cr:firefox": "cypress run --e2e -b firefox --headless",
+    "cr:ci": "cypress run --e2e -b chrome --headless --record",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "lint:cypress": "eslint cypress/"

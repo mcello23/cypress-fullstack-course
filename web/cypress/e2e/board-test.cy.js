@@ -12,10 +12,10 @@ const STRING = `Testing cy.prompt-${faker.number.int({
 })}`;
 
 describe('Board', function () {
-  if (Cypress.browser?.family !== 'chromium') {
-    this.skip();
-  }
-  beforeEach(() => {
+  beforeEach(function () {
+    if (Cypress.browser?.family !== 'chromium') {
+      this.skip();
+    }
     cy.loginBoard();
   });
 
@@ -37,6 +37,7 @@ describe('Board', function () {
   it('Should create a Procedure with prompt inputs', () => {
     cy.prompt([
       `visit this URL ${PROCEDURES}`,
+      'Wait for the page to load, like 8 seconds',
       'Click on the Add button right next to the Procedures title',
       `On the name input, type ${STRING}`,
       'Click on the STEPS button, then on the Step button',

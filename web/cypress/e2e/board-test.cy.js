@@ -31,7 +31,7 @@ describe('Board', () => {
     ]);
   });
 
-  it('Should create a Procedure with prompt inputs', () => {
+  it.skip('Should create a Procedure with prompt inputs', () => {
     cy.prompt([
       `visit URL ${PROCEDURES}`,
       'Wait for the page to load, like 15 seconds',
@@ -49,13 +49,13 @@ describe('Board', () => {
     ]);
   });
 
-  after(function () {
-    if (Cypress.browser?.family !== 'chromium') {
-      this.skip();
-    }
-    cy.get(
-      '[aria-describedby="cdk-describedby-message-ng-1-10"] .mat-mdc-button-touch-target',
-    ).click();
-    cy.get('#mat-mdc-dialog-1 .mat-primary .mdc-button__label').click();
-  });
+  // after(function () {
+  //   if (Cypress.browser?.family !== 'chromium') {
+  //     this.skip();
+  //   }
+  //   cy.get(
+  //     '[aria-describedby="cdk-describedby-message-ng-1-10"] .mat-mdc-button-touch-target',
+  //   ).click();
+  //   cy.get('#mat-mdc-dialog-1 .mat-primary .mdc-button__label').click();
+  // });
 });

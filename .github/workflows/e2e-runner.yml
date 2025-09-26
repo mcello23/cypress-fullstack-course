@@ -10,7 +10,16 @@ on:
       group:
         required: true
         type: string
-
+    secrets:
+      CYPRESS_RECORD_KEY:
+        required: true
+      BOARD_USERNAME:
+        required: true
+      BOARD_PASSWORD:
+        required: true
+      GITHUB_TOKEN:
+        required: true
+        
 jobs:
   e2e:
     name: E2E ${{ inputs.browser }} (machine ${{ matrix.machine }})

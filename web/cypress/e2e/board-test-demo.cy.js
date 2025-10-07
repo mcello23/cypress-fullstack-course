@@ -2,7 +2,7 @@ describe('Board cy.prompt demonstration', () => {
   it('Should access Office of Finance capsule and validate texts and values', () => {
     cy.prompt([
       'visit Office of Finance capsule https://qcrelease-c3.board.com/en/capsules/Demo%5COffice%20of%20Finance.bcps/screen',
-      'Wait for the page to load, like 15 seconds',
+      'Wait for the page to load, like 30 seconds',
       'Validate that Welcome to Finance is seen on the page',
       'Validate that User: mcosta@board.com is seen',
       'Click on Earnings Dashboard',

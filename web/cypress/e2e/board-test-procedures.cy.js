@@ -12,7 +12,7 @@ describe('Board cy.prompt procedure demonstration', () => {
   it('Should create a Procedure with prompt inputs', () => {
     cy.prompt([
       `visit URL ${PROCEDURES}`,
-      'Wait for the page to load, like 8 seconds',
+      'Wait for the page to load, like 15 seconds',
       'Click on the yellow Add button right next to the Procedures title',
       `On the name input, type ${STRING}`,
       'Click on the STEPS button, then on the Step button',

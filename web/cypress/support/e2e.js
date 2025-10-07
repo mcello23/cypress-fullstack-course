@@ -4,8 +4,11 @@ import './commands';
 beforeEach(function () {
   const specName = Cypress.spec && Cypress.spec.name ? Cypress.spec.name : '';
 
-  // Skip board tests in non-Chromium browsers (required for cy.prompt)
-  if (/board-test/i.test(specName) && Cypress.browser?.family !== 'chromium') {
+  // Skip tests that require cy.prompt in non-Chromium browsers
+  if (
+    /(board-test|integration)/i.test(specName) &&
+    Cypress.browser?.family !== 'chromium'
+  ) {
     this.skip();
     return;
   }

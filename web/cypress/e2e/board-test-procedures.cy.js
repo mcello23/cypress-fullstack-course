@@ -11,7 +11,7 @@ const STRING = `Testing cy.prompt-${faker.number.int({
 describe('Board cy.prompt procedure demonstration', () => {
   it('Should create a Procedure with prompt inputs', () => {
     cy.prompt([
-      `visit URL ${PROCEDURES}`,
+      `visit the URL ${PROCEDURES}`,
       'Wait for the page to load, like 30 seconds',
       'Click on the yellow Add button right next to the Procedures title',
       `On the name input, type ${STRING}`,

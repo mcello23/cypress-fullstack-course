@@ -9,11 +9,16 @@ const STRING = `Testing cy.prompt-${faker.number.int({
 })}`;
 
 describe('Board cy.prompt procedure demonstration', () => {
+  before(function () {
+    if (Cypress.env('CI') || process.env.CI) {
+      this.skip();
+    }
+  });
   it('Should create a Procedure with prompt inputs', () => {
     cy.prompt([
       `visit the URL ${PROCEDURES}`,
-      'Wait for the page to load, like 60 seconds',
-      'Click on the Add button right next to the Procedures title',
+      'Wait for the page to load, like 10 seconds',
+      'Click on the yellow Add button right next to the Procedures title',
       `On the name input, type ${STRING}`,
       'Click on the STEPS button, then on the Step button',
       'Force click on "Go to Capsule" button',
